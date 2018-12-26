@@ -6,15 +6,26 @@ import shutil
 import sys
 import tempfile
 import types
+import functools
+import datetime
+
 
 import yaml
 from httprunner import HttpRunner, logger
 from requests_toolbelt import MultipartEncoder
+from threading import Thread
+from bs4 import BeautifulSoup
 
 from fastrunner import models
 from fastrunner.utils.parser import Format
 
 logger.setup_logger('DEBUG')
+
+TEST_NOT_EXISTS = {
+    "code": "0102",
+    "status": "False",
+    "msg": "节点下没有接口或者用例集",
+}
 
 
 def is_function(tup):
@@ -96,6 +107,7 @@ class FileLoader(object):
 
         sys.path.insert(0, file_path)
         module = importlib.import_module("debugtalk")
+        importlib.reload(module)  # 重载bug的修复
         sys.path.pop(0)
 
         for name, item in vars(module).items():
@@ -158,25 +170,66 @@ def parse_tests(testcases, debugtalk, config=None):
     return testset
 
 
+def load_debugtalk(project):
+    """
+    把debugtalk.py 加载到系统环境
+    :param project:
+    :return:
+    """
+    code = models.Debugtalk.objects.get(project__id=project).code
+    file_path = os.path.join(tempfile.mkdtemp(prefix="FasterRunner"), "debugtalk.py")
+    FileLoader.dump_python_file(file_path, code)
+    debugtalk = FileLoader.load_python_module(os.path.dirname(file_path))
+    shutil.rmtree(os.path.dirname(file_path))
+
+    return debugtalk
+
+
+def debug_suite(suite, pk, project):
+    """
+    debug suite
+    :param suite:
+    :param pk:
+    :param project:
+    :return:
+    """
+    if len(suite) == 0:
+        return TEST_NOT_EXISTS
+    body = None
+
+    if pk:
+        config = models.Config.objects.get(id=pk)
+        body = eval(config.body)
+
+    debugtalk = load_debugtalk(project)
+
+    testsuite = []
+    for testcase in suite:
+        testsuite.append(parse_tests(testcase, debugtalk, config=body))
+        kwargs = {
+            "failfast": False
+        }
+
+        runner = HttpRunner(**kwargs)
+        runner.run(testsuite)
+        return runner.summary
+
+
 def debug_api(api, pk, project):
     """debug api
-        api :dict
+        api :dict or list
         pk: int
         project: int
     """
+
+    if len(api) == 0:
+        return TEST_NOT_EXISTS
+
     body = None
     # config
     if pk:
         config = models.Config.objects.get(id=pk)
         body = eval(config.body)
-
-    # debugtalk.py
-    code = models.Debugtalk.objects.get(project__id=project).code
-
-    file_path = os.path.join(tempfile.mkdtemp(prefix='FasterRunner'), "debugtalk.py")
-    FileLoader.dump_python_file(file_path, code)
-    debugtalk = FileLoader.load_python_module(os.path.dirname(file_path))
-    shutil.rmtree(os.path.dirname(file_path))
 
     # testcases
     if isinstance(api, dict):
@@ -185,7 +238,7 @@ def debug_api(api, pk, project):
         """
         api = [api]
 
-    testcase_list = [parse_tests(api, debugtalk, config=body)]
+    testcase_list = [parse_tests(api, load_debugtalk(project), config=body)]
 
     kwargs = {
         "failfast": False
@@ -219,3 +272,66 @@ def load_test(test):
             testcase['name'] = name
 
     return testcase
+
+
+def back_async(func):
+    """
+    异步执行装饰器
+    :param func:
+    :return:
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        thread = Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+
+    return wrapper
+
+
+def parse_summary(name, summary, type=2):
+    """
+
+    :param name:
+    :param summary:
+    :param type:
+    :return:
+    """
+    if "status" in summary.keys():
+        return
+
+    if name is "":
+        name = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    models.Report.objects.create(**{
+        "name": name,
+        "type": type,
+        "summary": summary,
+    })
+
+
+@back_async
+def async_debug_api(api, pk, project, name):
+    """
+    异步执行api
+    :param api:
+    :param pk:
+    :param project:
+    :param name:
+    :return:
+    """
+    summary = debug_api(api, pk, project)
+    parse_summary(name, summary)
+
+
+@back_async
+def async_debug_suite(suite, pk, project, name):
+    """
+    异步执行suite
+    :param suite:
+    :param pk:
+    :param project:
+    :param name:
+    :return:
+    """
+    summary = debug_suite(suite, pk, project)
+    parse_summary(name, summary)

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from fastrunner import models
 from fastrunner.utils.parser import Parse
+import json
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -115,3 +116,19 @@ class ConfigSerializer(serializers.ModelSerializer):
         parse = Parse(eval(obj.body), level='config')
         parse.parse_http()
         return parse.testcase
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    """
+    测试报告的序列化
+    """
+    type = serializers.CharField(source="get_type_display")
+    project = serializers.CharField(source="project.name")
+    summary = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Report
+        fields = ["id", "name", "type", "project", "summary"]
+
+    def get_summary(self, obj):
+        return json.loads(obj.summary)

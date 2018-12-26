@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'e$od9f28jce8q47u3raik$(e%$@lff6r89ux+=f!e1a$e42+#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -75,6 +75,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'FasterRunner.wsgi.application'
 
+
+# 发送邮件配置
+MAIL_INFO = {
+    "mail_host": "smtp.163.com",
+    "mail_user": "win08lin.163.com",
+    "mail_pass": "",
+    "mail_from": "win08lin.163.com",
+    "sender": "284258099@qq.com",
+}
+
+SERVICE_URL = "http://127.0.0.1:8080"
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 if not DEBUG:
@@ -146,7 +157,8 @@ REST_FRAMEWORK = {
     # json form 渲染
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser',
                                'rest_framework.parsers.FormParser',
-                               'rest_framework.parsers.MultiPartParser'
+                               'rest_framework.parsers.MultiPartParser',
+                               'rest_framework.parsers.FileUploadParser',
                                ],
     'DEFAULT_PAGINATION_CLASS': 'FasterRunner.pagination.MyPageNumberPagination',
 }
@@ -173,7 +185,9 @@ CORS_ALLOW_HEADERS = (
     'dnt',
     'origin',
     'user-agent',
-    'x-csrftoken',
+    'x-csrf-token',
+    'x-xsrf-token',
+    'TOKEN',
     'x-requested-with',
 )
 

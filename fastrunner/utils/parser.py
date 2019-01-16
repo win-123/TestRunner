@@ -2,6 +2,7 @@ import json
 from enum import Enum
 from fastrunner.models import FileBinary
 
+
 class FileType(Enum):
     """
     文件类型枚举

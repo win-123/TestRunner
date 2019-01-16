@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-# -*- coding:utf-8 -*-
-
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.viewsets import GenericViewSet
 from fastrunner import models, serializers
@@ -15,7 +12,11 @@ class ConfigView(GenericViewSet):
 
     def list(self, request):
         project = request.query_params['project']
+        search = request.query_params["search"]
         queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
+        if search != "":
+            queryset = queryset.filter(name_contains=search)
+
         pagination_queryset = self.paginate_queryset(queryset)
         serializer = self.get_serializer(pagination_queryset, many=True)
 
@@ -89,6 +90,13 @@ class ConfigView(GenericViewSet):
         if models.Config.objects.exclude(id=pk).filter(name=format.name).first():
             return Response(response.CONFIG_EXISTS)
 
+        case_step = models.CaseStep.objects.filter(method="config", name=config.name)
+
+        for case in case_step:
+            case.name = format.name
+            case.body = format.testcase
+            case.save()
+
         config.name = format.name
         config.body = format.testcase
         config.base_url = format.base_url
@@ -126,7 +134,7 @@ class ConfigView(GenericViewSet):
 
     def delete(self, request, **kwargs):
         """
-        删除一个接口 pk
+        删除一个配置 pk
         删除多个
         [{
             id:int
@@ -142,5 +150,92 @@ class ConfigView(GenericViewSet):
 
         except ObjectDoesNotExist:
             return Response(response.CONFIG_NOT_EXISTS)
+
+        return Response(response.API_DEL_SUCCESS)
+
+
+class VariablesView(GenericViewSet):
+    serializer_class = serializers.VariablesSerializer
+    queryset = models.Variables.objects
+
+    def list(self, request):
+        project = request.query_params['project']
+        search = request.query_params["search"]
+
+        queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
+        if search != "":
+            queryset = queryset.filter(name_contains=search)
+
+        pagination_queryset = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(pagination_queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
+
+    def add(self, request):
+        """
+            add new variables
+            {
+                key: str
+                value: str
+                project: int
+            }
+        """
+
+        try:
+            project = models.Project.objects.get(id=request.data["project"])
+        except ObjectDoesNotExist:
+            return Response(response.PROJECT_NOT_EXISTS)
+
+        if models.Variables.objects.filter(key=request.data["key"], project=project).first():
+            return Response(response.VARIABLES_EXISTS)
+
+        request.data["project"] = project
+
+        models.Variables.objects.create(**request.data)
+        return Response(response.CONFIG_ADD_SUCCESS)
+
+    def update(self, request, **kwargs):
+        """
+        pk: int
+        {
+          key: str
+          value:str
+        }
+        """
+        pk = kwargs['pk']
+
+        try:
+            variables = models.Variables.objects.get(id=pk)
+
+        except ObjectDoesNotExist:
+            return Response(response.VARIABLES_NOT_EXISTS)
+
+        if models.Variables.objects.exclude(id=pk).filter(key=request.data['key']).first():
+            return Response(response.VARIABLES_EXISTS)
+
+        variables.key = request.data["key"]
+        variables.value = request.data["value"]
+        variables.save()
+
+        return Response(response.VARIABLES_UPDATE_SUCCESS)
+
+    def delete(self, request, **kwargs):
+        """
+        删除一个变量 pk
+        删除多个
+        [{
+            id:int
+        }]
+        """
+
+        try:
+            if kwargs.get('pk'):  # 单个删除
+                models.Variables.objects.get(id=kwargs['pk']).delete()
+            else:
+                for content in request.data:
+                    models.Variables.objects.get(id=content['id']).delete()
+
+        except ObjectDoesNotExist:
+            return Response(response.VARIABLES_NOT_EXISTS)
 
         return Response(response.API_DEL_SUCCESS)

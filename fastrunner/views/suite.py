@@ -26,11 +26,10 @@ class TestCaseView(GenericViewSet):
         node = request.query_params["node"]
         project = request.query_params["project"]
         search = request.query_params["search"]
-
         # update_time 降序排列
         queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
 
-        if search != "":
+        if search != '':
             queryset = queryset.filter(name__contains=search)
 
         if node != '':
@@ -83,10 +82,10 @@ class TestCaseView(GenericViewSet):
 
         body = request.data.pop('body')
 
-        if "case" in body[0].keys():
-            case_info = body[0]["case"]
+        if "case" in body[-1].keys():
+            case_info = body[-1]["case"]
         else:
-            case_info = body[0]
+            case_info = body[-1]
 
         if models.Case.objects.exclude(id=pk). \
                 filter(name=request.data['name'],

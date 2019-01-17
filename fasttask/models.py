@@ -18,7 +18,7 @@ class Schedule(BaseTable):
 
     name = models.CharField("任务名称", unique=True, null=False, max_length=100)
     identity = models.CharField("任务ID", unique=True, null=False, max_length=100)
-    send_type = models.IntegerField("发送策略", choices=send_strategy, default=3)
+    send_type = models.IntegerField("发送策略", choices=triggers_type, default=3)
     config = models.TextField("任务分配", null=False)
     receiver = models.CharField("接受人", null=True, max_length=2048)
     copy = models.CharField("抄送人", null=True, max_length=2048)

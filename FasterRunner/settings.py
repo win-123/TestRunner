@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'e$od9f28jce8q47u3raik$(e%$@lff6r89ux+=f!e1a$e42+#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -97,10 +97,10 @@ if not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'fast_runner',  # 新建数据库名
+            'NAME': 'autotest',  # 新建数据库名
             'USER': 'root',  # 数据库登录名
-            'PASSWORD': '123456',  # 数据库登录密码
-            'HOST': 'localhost',  # 数据库所在服务器ip地址
+            'PASSWORD': '!2Qwerty',  # 数据库登录密码
+            'HOST': '39.107.76.94',  # 数据库所在服务器ip地址
             'PORT': '3306',  # 监听端口 默认3306即可
         }
     }

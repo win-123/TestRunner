@@ -17,7 +17,6 @@ class ReportView(GenericViewSet):
     """
     报告视图
     """
-    renderer_classes = [TemplateHTMLRenderer]
     authentication_classes = ()
     queryset = models.Report.objects
     serializer_class = serializers.ReportSerializer
@@ -56,7 +55,9 @@ class ReportView(GenericViewSet):
         """查看报告
         """
         pk = kwargs["pk"]
-        summary = models.Report.objects.get(id=pk).summary
+        report = models.Report.objects.get(id=pk)
+        summary = json.loads(report.summary, encoding="utf-8")
+        summary["html_report_name"] = report.name
 
         return render_to_response(summary, template_name='report_template.html')
 

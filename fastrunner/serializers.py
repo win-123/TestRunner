@@ -135,12 +135,9 @@ class ReportSerializer(serializers.ModelSerializer):
     platform = serializers.SerializerMethodField()
     success = serializers.SerializerMethodField()
 
-    # project = serializers.CharField(source="project.name")
-    # summary = serializers.SerializerMethodField()
-
     class Meta:
         model = models.Report
-        fields = ["id", "name", "type", "time", "platform", "success"]
+        fields = ["id", "name", "type", "time", "stat", "platform", "success"]
 
     def get_time(self, obj):
         return json.loads(obj.summary)["time"]
@@ -148,7 +145,7 @@ class ReportSerializer(serializers.ModelSerializer):
     def get_stat(self, obj):
         return json.loads(obj.summary)["stat"]
 
-    def get_paltform(self, obj):
+    def get_platform(self, obj):
         return json.loads(obj.summary)["platform"]
 
     def get_success(self, obj):

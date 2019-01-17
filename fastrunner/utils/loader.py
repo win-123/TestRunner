@@ -16,7 +16,6 @@ import yaml
 from bs4 import BeautifulSoup
 from httprunner import HttpRunner, logger
 from requests.cookies import RequestsCookieJar
-from requests_toolbelt import MultipartEncoder
 
 from fastrunner import models
 from fastrunner.utils.parser import Format
@@ -168,26 +167,6 @@ def parse_tests(testcases, debugtalk, name=None, config=None):
         testset["config"]["variables"].extend(global_variables)
 
     testset["config"]["refs"] = refs
-
-    # for teststep in testcases:
-    #     # handle files
-    #     if "files" in teststep["request"].keys():
-    #         fields = {}
-    #
-    #         if "data" in teststep["request"].keys():
-    #             fields.update(teststep["request"].pop("data"))
-    #
-    #         for key, value in teststep["request"].pop("files").items():
-    #             file_binary = models.FileBinary.objects.get(name=value).body
-    #             # file_path = os.path.join(tempfile.mkdtemp(prefix='File'), value)
-    #             # FileLoader.dump_binary_file(file_path, file_binary)
-    #             fields[key] = (value, file_binary)
-    #
-    #         teststep["request"]["data"] = MultipartEncoder(fields)
-    #         try:
-    #             teststep["request"]["headers"]["Content-Type"] = teststep["request"]["data"].content_type
-    #         except KeyError:
-    #             teststep["request"].setdefault("headers", {"Content-Type": teststep["request"]["data"].content_type})
 
     return testset
 

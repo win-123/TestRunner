@@ -7,12 +7,16 @@ from fastrunner.utils.parser import Format
 
 
 class ConfigView(GenericViewSet):
+    """
+    配置视图
+    """
     serializer_class = serializers.ConfigSerializer
     queryset = models.Config.objects
 
     def list(self, request):
         project = request.query_params['project']
         search = request.query_params["search"]
+
         queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
         if search != "":
             queryset = queryset.filter(name_contains=search)
@@ -162,7 +166,8 @@ class VariablesView(GenericViewSet):
         project = request.query_params['project']
         search = request.query_params["search"]
 
-        queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
+        queryset = self.get_queryset().filter(project__id=project)
+        # queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
         if search != "":
             queryset = queryset.filter(name_contains=search)
 

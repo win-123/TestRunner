@@ -38,8 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # app
     'fastrunner.apps.FastrunnerConfig',
     'fastuser',
+    'fasttask',
+
+    # third party
     'rest_framework',
     'corsheaders'
 ]

@@ -90,7 +90,7 @@ MAIL_INFO = {
     "sender": "284258099@qq.com",
 }
 
-SERVICE_URL = "http://127.0.0.1:8080"
+# SERVICE_URL = "http://127.0.0.1:8080"
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 if not DEBUG:
@@ -152,6 +152,10 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 # rest_framework config
 

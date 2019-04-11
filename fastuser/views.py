@@ -58,7 +58,7 @@ class LoginView(APIView):
     authentication_classes = ()
     permission_classes = ()
 
-    def post(self, request):
+    def post(self, request,):
         """
         用户名密码一致返回token
         {

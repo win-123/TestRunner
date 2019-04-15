@@ -1,6 +1,9 @@
 import json
+import logging
 from enum import Enum
-from fastrunner.models import FileBinary
+
+
+logger = logging.getLogger("FasterRunner")
 
 
 class FileType(Enum):
@@ -40,7 +43,6 @@ class Format(object):
                     name: name -> string
                 }
         """
-
         try:
             self.name = body.pop('name')
 
@@ -96,7 +98,8 @@ class Format(object):
                 "times": self.__times,
                 "request": {
                     "url": self.url,
-                    "method": self.method
+                    "method": self.method,
+                    "verify": False
                 },
                 "desc": self.__desc
             }
@@ -205,7 +208,7 @@ class Parse(object):
         key = str(type(content).__name__)
 
         if key in ["list", "dict"]:
-            content = json.dumps(content)
+            content = json.dumps(content, ensure_ascii=False)
         else:
             content = str(content)
         return var_type[key], content
@@ -312,16 +315,16 @@ class Parse(object):
                     "desc": self.__desc["data"][key]
                 })
 
-        if self.__request.get('files'):
-            for key, value in self.__request.pop("files").items():
-                size = FileBinary.objects.get(name=value).size
-                test['request']['data'].append({
-                    "key": key,
-                    "value": value,
-                    "size": size,
-                    "type": 5,
-                    "desc": self.__desc["files"][key]
-                })
+        # if self.__request.get('files'):
+        #     for key, value in self.__request.pop("files").items():
+        #         size = FileBinary.objects.get(name=value).size
+        #         test['request']['data'].append({
+        #             "key": key,
+        #             "value": value,
+        #             "size": size,
+        #             "type": 5,
+        #             "desc": self.__desc["files"][key]
+        #         })
 
         if self.__request.get('params'):
             test["request"]["params"] = []
@@ -369,5 +372,11 @@ class Parse(object):
                         "setup": setup,
                         "teardown": self.__teardown_hooks[index]
                     })
-
         self.testcase = test
+
+
+def format_json(value):
+    try:
+        return json.dumps(value, indent=4, separators=(',', ': '), ensure_ascii=False)
+    except:
+        return value

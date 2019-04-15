@@ -1,7 +1,9 @@
+import json
+
 from rest_framework import serializers
 from fastrunner import models
 from fastrunner.utils.parser import Parse
-import json
+from djcelery import models as celery_models
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -12,30 +14,6 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
         fields = ['id', 'name', 'desc', 'responsible', 'update_time']
-
-
-class TeamSerializer(serializers.ModelSerializer):
-    """
-    项目成员序列化
-    """
-    permission = serializers.CharField(source="get_permission_display")
-    project = serializers.CharField(source="project.name")
-
-    class Meta:
-        model = models.Team
-        fields = ["id", "account", "permission", "project"]
-
-
-class DataBaseSerializer(serializers.ModelSerializer):
-    """
-    数据库信息序列化
-    """
-
-    # type = serializers.CharField(source="get_type_display")
-
-    class Meta:
-        model = models.DataBase
-        fields = '__all__'
 
 
 class DebugTalkSerializer(serializers.ModelSerializer):
@@ -78,6 +56,7 @@ class CaseSerializer(serializers.ModelSerializer):
     """
     用例信息序列化
     """
+    tag = serializers.CharField(source="get_tag_display")
 
     class Meta:
         model = models.Case
@@ -159,3 +138,31 @@ class VariablesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Variables
         fields = "__all__"
+
+
+class HOSTIPSerializer(serializers.ModelSerializer):
+    """
+    主机信息序列化
+    """
+    class Meta:
+        model = models.HOSTIP
+        fields = "__all__"
+
+
+class PeriodicTaskSerializer(serializers.ModelSerializer):
+    """
+    定时任务序列化
+    """
+    kwargs = serializers.SerializerMethodField()
+    args = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.PeriodicTask
+        fields = ["id", "name", "args", "kwargs", "enabled", "date_changed", "description"]
+
+    def get_kwargs(self, obj):
+        return json.loads(obj.kwargs)
+
+    def get_args(self, obj):
+        return json.loads(obj.args)
+

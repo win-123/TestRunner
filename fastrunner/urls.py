@@ -18,7 +18,7 @@ from fastrunner.views import (
     project,
     api,
     config,
-    database,
+    schedule,
     run,
     suite,
     report,
@@ -34,12 +34,12 @@ urlpatterns = [
     })),
     path('project/<int:pk>/', project.ProjectView.as_view({"get": "single"})),
 
-    # 数据库相关接口地址
-    path('database/', database.DataBaseView.as_view({
+    # 定时任务相关接口地址
+    path('schedule/', schedule.DataBaseView.as_view({
         "get": "list",
         "post": "create",
     })),
-    path('database/<int:pk>/', database.DataBaseView.as_view({
+    path('schedule/<int:pk>/', schedule.DataBaseView.as_view({
         'patch': 'partial_update',
         'delete': 'destroy'
     })),
@@ -54,8 +54,8 @@ urlpatterns = [
     # 二叉树接口地址
     path('tree/<int:pk>/', project.TreeView.as_view()),
 
-    # 文件上传 修改 删除接口地址
-    path('file/', project.FileView.as_view()),
+    # # 文件上传 修改 删除接口地址
+    # path('file/', project.FileView.as_view()),
 
     # api接口模板地址
     path('api/', api.APITemplateView.as_view({
@@ -119,6 +119,7 @@ urlpatterns = [
     path('run_test/', run.run_test),
     path('run_testsuite_pk/<int:pk>/', run.run_testsuite_pk),
     path('run_suite_tree/', run.run_suite_tree),
+    path('automation_test/', run.automation_test),
 
     # 报告地址
     path('reports/', report.ReportView.as_view({
@@ -128,6 +129,18 @@ urlpatterns = [
     path('reports/<int:pk>/', report.ReportView.as_view({
         "get": "look",
         "delete": "delete",
-    }))
+    })),
+
+    # 主机地址
+    path('host_ip/', config.HostIPView.as_view({
+        "post": "add",
+        "get": "list"
+    })),
+
+    path('host_ip/<int:pk>/', config.HostIPView.as_view({
+        "delete": "delete",
+        "patch": "update",
+        "get": "all"
+    })),
 
 ]

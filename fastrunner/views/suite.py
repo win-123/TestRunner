@@ -4,17 +4,26 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from fastrunner import models, serializers
-
+from django.utils.decorators import method_decorator
 from rest_framework.response import Response
+
+
 from fastrunner.utils import response
 from fastrunner.utils import prepare
+from fastrunner.utils.decorator import request_log
+from fastrunner import models, serializers
 
 
 class TestCaseView(GenericViewSet):
     queryset = models.Case.objects
     serializer_class = serializers.CaseSerializer
+    tag_options = {
+        "冒烟用例": 1,
+        "集成用例": 2,
+        "监控脚本": 3
+    }
 
+    @method_decorator(request_log(level='INFO'))
     def get(self, request):
         """
         查询指定CASE列表，不包含CASE STEP
@@ -40,6 +49,7 @@ class TestCaseView(GenericViewSet):
 
         return self.get_paginated_response(serializer.data)
 
+    @method_decorator(request_log(level='INFO'))
     def copy(self, request, **kwargs):
         """
         pk int: test id
@@ -50,24 +60,22 @@ class TestCaseView(GenericViewSet):
         }
         """
         pk = kwargs['pk']
-
-        if models.Case.objects.filter(**request.data).first():
-            return Response(response.CASE_EXISTS)
-
+        name = request.data['name']
         case = models.Case.objects.get(id=pk)
         case.id = None
-        case.name = request.data['name']
+        case.name = name
         case.save()
 
         case_step = models.CaseStep.objects.filter(case__id=pk)
 
         for step in case_step:
             step.id = None
-            step.case = models.Case.objects.get(name=request.data['name'])
+            step.case = case
             step.save()
 
         return Response(response.CASE_ADD_SUCCESS)
 
+    @method_decorator(request_log(level='INFO'))
     def patch(self, request, **kwargs):
         """
         更新测试用例集
@@ -75,32 +83,31 @@ class TestCaseView(GenericViewSet):
             name: str
             id: int
             body: []
+            project: int
         }
         """
 
         pk = kwargs['pk']
-
+        project = request.data.pop("project")
         body = request.data.pop('body')
-
-        if "case" in body[-1].keys():
-            case_info = body[-1]["case"]
-        else:
-            case_info = body[-1]
+        relation = request.data.pop("relation")
 
         if models.Case.objects.exclude(id=pk). \
                 filter(name=request.data['name'],
-                       project__id=case_info["project"],
-                       relation=case_info["relation"]).first():
+                       project__id=project,
+                       relation=relation).first():
             return Response(response.CASE_EXISTS)
 
         case = models.Case.objects.get(id=pk)
 
         prepare.update_casestep(body, case)
 
+        request.data['tag'] = self.tag_options[request.data['tag']]
         models.Case.objects.filter(id=pk).update(**request.data)
 
         return Response(response.CASE_UPDATE_SUCCESS)
 
+    @method_decorator(request_log(level='INFO'))
     def post(self, request):
         """
         新增测试用例集
@@ -108,6 +115,7 @@ class TestCaseView(GenericViewSet):
             name: str
             project: int,
             relation: int,
+            tag:str
             body: [{
                 id: int,
                 project: int,
@@ -130,10 +138,7 @@ class TestCaseView(GenericViewSet):
 
         body = request.data.pop('body')
 
-        # 同一项目同一节点下存在相同用例集
-        if models.Case.objects.filter(**request.data).first():
-            return Response(response.CASE_EXISTS)
-
+        request.data['tag'] = self.tag_options[request.data['tag']]
         models.Case.objects.create(**request.data)
 
         case = models.Case.objects.filter(**request.data).first()
@@ -142,6 +147,7 @@ class TestCaseView(GenericViewSet):
 
         return Response(response.CASE_ADD_SUCCESS)
 
+    @method_decorator(request_log(level='INFO'))
     def delete(self, request, **kwargs):
         """
         pk: test id delete single
@@ -167,6 +173,7 @@ class CaseStepView(APIView):
     测试用例step操作视图
     """
 
+    @method_decorator(request_log(level='INFO'))
     def get(self, request, **kwargs):
         """
         返回用例集信息
@@ -177,4 +184,8 @@ class CaseStepView(APIView):
 
         serializer = serializers.CaseStepSerializer(instance=queryset, many=True)
 
-        return Response(serializer.data)
+        resp = {
+            "case": serializers.CaseSerializer(instance=models.Case.objects.get(id=pk), many=False).data,
+            "step": serializer.data
+        }
+        return Response(resp)

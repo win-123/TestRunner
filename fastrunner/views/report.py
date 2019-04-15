@@ -1,16 +1,17 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import json
 from rest_framework.response import Response
-from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.viewsets import GenericViewSet
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render_to_response
+from django.utils.decorators import method_decorator
 
 from FasterRunner import pagination
 from fastrunner import models, serializers
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render_to_response
 from fastrunner.utils import response
-import json
+from fastrunner.utils.decorator import request_log
 
 
 class ReportView(GenericViewSet):
@@ -22,12 +23,15 @@ class ReportView(GenericViewSet):
     serializer_class = serializers.ReportSerializer
     pagination_class = pagination.MyPageNumberPagination
 
+    @method_decorator(request_log(level='DEBUG'))
     def list(self, request):
         """报告列表
         """
-        project = request.query_params["project"]
+
+        project = request.query_params['project']
         search = request.query_params["search"]
-        queryset = self.get_queryset().filter(project__id=project).order_by("-update_time")
+
+        queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
 
         if search != '':
             queryset = queryset.filter(name__contains=search)
@@ -36,8 +40,16 @@ class ReportView(GenericViewSet):
         serializer = self.get_serializer(page_report, many=True)
         return self.get_paginated_response(serializer.data)
 
+    @method_decorator(request_log(level='INFO'))
     def delete(self, request, **kwargs):
         """删除报告
+        """
+        """
+           删除一个报告pk
+           删除多个
+           [{
+               id:int
+           }]
         """
         try:
             if kwargs.get('pk'):  # 单个删除
@@ -51,6 +63,7 @@ class ReportView(GenericViewSet):
 
         return Response(response.REPORT_DEL_SUCCESS)
 
+    @method_decorator(request_log(level='INFO'))
     def look(self, request, **kwargs):
         """查看报告
         """
@@ -58,8 +71,7 @@ class ReportView(GenericViewSet):
         report = models.Report.objects.get(id=pk)
         summary = json.loads(report.summary, encoding="utf-8")
         summary["html_report_name"] = report.name
-
-        return render_to_response(summary, template_name='report_template.html')
+        return render_to_response('report_template.html', summary)
 
     def download(self, request, **kwargs):
         """下载报告

@@ -2,9 +2,10 @@
 # -*- coding:utf-8 -*-
 # @time  : 2019/1/16  上午9:04
 
-from django import template
 import json
 import time
+
+from django import template
 
 
 register = template.Library()

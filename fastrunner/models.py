@@ -17,28 +17,6 @@ class Project(BaseTable):
         db_table = "Project"
 
 
-class Team(BaseTable):
-    """
-    项目成员
-    """
-
-    permission_union = (
-        (1, "admin"),
-        (2, "read"),
-        (3, "write"),
-        (4, "delete"),
-        (5, "admin")
-    )
-
-    account = models.CharField("账号", max_length=20)
-    permission = models.IntegerField("权限", choices=permission_union)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = "项目成员"
-        db_table = "Team"
-
-
 class Debugtalk(models.Model):
     """
     驱动文件表
@@ -87,9 +65,16 @@ class Case(BaseTable):
     """
     用例信息表
     """
+    tag = (
+        (1, "冒烟测试"),
+        (2, "集成测试"),
+        (3, "监控脚本"),
+    )
     name = models.CharField("用例名称", null=False, max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     relation = models.IntegerField("节点id", null=False)
+    length = models.IntegerField("API个数", null=False)
+    tag = models.IntegerField("用例标签", choices=tag, default=2)
 
     class Meta:
         verbose_name = "用例信息"
@@ -113,29 +98,17 @@ class CaseStep(BaseTable):
         db_table = "CaseStep"
 
 
-class DataBase(BaseTable):
+class HostIP(BaseTable):
     """
-    数据库信息表
+    主机配置
     """
-
-    db_type = (
-        (1, "Sql Server"),
-        (2, "MySQL"),
-        (3, "Oracle"),
-        (4, "Mongodb"),
-        (5, "InfluxDB")
-    )
-
-    name = models.CharField("数据库名称", null=False, max_length=100)
-    server = models.CharField("服务地址", null=False, max_length=100)
-    account = models.CharField("登录名", max_length=50, null=False)
-    password = models.CharField("登陆密码", max_length=50, null=False)
-    type = models.IntegerField('数据库类型', default=2, choices=db_type)
-    desc = models.CharField("描述", max_length=50, null=False)
+    name = models.CharField(null=False, max_length=100)
+    value = models.TextField(null=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = "数据库信息"
-        db_table = "DataBase"
+        verbose_name = "HOST配置"
+        db_table = "HostIP"
 
 
 class Variables(models.Model):
@@ -149,20 +122,6 @@ class Variables(models.Model):
     class Meta:
         verbose_name = "全局变量"
         db_table = "Variables"
-
-
-class FileBinary(models.Model):
-    """
-    二进制文件流
-    """
-
-    name = models.CharField("文件名称", unique=True, null=False, max_length=50)
-    body = models.BinaryField("二进制流", null=False)
-    size = models.CharField("大小", null=False, max_length=30)
-
-    class Meta:
-        verbose_name = "二进制文件"
-        db_table = "FileBinary"
 
 
 class Report(BaseTable):

@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import sentry_sdk
+sentry_sdk.init("https://b1d90a3ac59a4e67b204a209149db068@sentry.io/1439016")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -108,10 +110,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'fast_runner',  # 新建数据库名
+            'NAME': 'autotest',  # 新建数据库名
             'USER': 'root',  # 数据库登录名
-            'PASSWORD': '123456',  # 数据库登录密码
-            'HOST': 'localhost',  # 数据库所在服务器ip地址
+            'PASSWORD': '!2Qwerty',  # 数据库登录密码
+            'HOST': '39.107.76.94',  # 数据库所在服务器ip地址
             'PORT': '3306',  # 监听端口 默认3306即可
         }
     }

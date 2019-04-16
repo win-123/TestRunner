@@ -140,12 +140,12 @@ class VariablesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class HOSTIPSerializer(serializers.ModelSerializer):
+class HostIPSerializer(serializers.ModelSerializer):
     """
     主机信息序列化
     """
     class Meta:
-        model = models.HOSTIP
+        model = models.HostIP
         fields = "__all__"
 
 
@@ -157,7 +157,7 @@ class PeriodicTaskSerializer(serializers.ModelSerializer):
     args = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.PeriodicTask
+        model = celery_models.PeriodicTask
         fields = ["id", "name", "args", "kwargs", "enabled", "date_changed", "description"]
 
     def get_kwargs(self, obj):

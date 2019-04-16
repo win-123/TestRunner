@@ -35,11 +35,11 @@ urlpatterns = [
     path('project/<int:pk>/', project.ProjectView.as_view({"get": "single"})),
 
     # 定时任务相关接口地址
-    path('schedule/', schedule.DataBaseView.as_view({
+    path('schedule/', schedule.ScheduleView.as_view({
         "get": "list",
         "post": "create",
     })),
-    path('schedule/<int:pk>/', schedule.DataBaseView.as_view({
+    path('schedule/<int:pk>/', schedule.ScheduleView.as_view({
         'patch': 'partial_update',
         'delete': 'destroy'
     })),

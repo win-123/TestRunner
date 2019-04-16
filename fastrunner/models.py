@@ -156,3 +156,14 @@ class Relation(models.Model):
     class Meta:
         verbose_name = "树形结构关系"
         db_table = "Relation"
+
+    # [
+    #     {
+    #         "name": "testcase",
+    #         "body": "body",
+    #         "url": "https://www.baidu.com",
+    #         "method": "post",
+    #         "project": "1",
+    #         "relation": 1
+    #     }
+    # ]

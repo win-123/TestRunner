@@ -49,7 +49,6 @@ class ScheduleView(GenericViewSet):
         resp = task.add_task()
         return Response(resp)
 
-    #
     # @method_decorator(request_log(level='INFO'))
     # def update(self, request):
     #     """
@@ -73,6 +72,7 @@ class ScheduleView(GenericViewSet):
     #     return Response(response.PROJECT_UPDATE_SUCCESS)
     #
     # @method_decorator(request_log(level='INFO'))
+
     def delete(self, request, **kwargs):
         """删除任务
         """

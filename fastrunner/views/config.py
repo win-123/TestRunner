@@ -17,7 +17,7 @@ class ConfigView(GenericViewSet):
         project = request.query_params['project']
         search = request.query_params["search"]
 
-        queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
+        queryset = self.get_queryset().filter(project__id=project)
 
         if search != '':
             queryset = queryset.filter(name__contains=search)
@@ -173,7 +173,7 @@ class VariablesView(GenericViewSet):
         project = request.query_params['project']
         search = request.query_params["search"]
 
-        queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
+        queryset = self.get_queryset().filter(project__id=project)
 
         if search != '':
             queryset = queryset.filter(key__contains=search)
@@ -263,7 +263,7 @@ class HostIPView(GenericViewSet):
     @method_decorator(request_log(level='DEBUG'))
     def list(self, request):
         project = request.query_params['project']
-        queryset = self.get_queryset().filter(project__id=project).order_by('-update_time')
+        queryset = self.get_queryset().filter(project__id=project)
         pagination_queryset = self.paginate_queryset(queryset)
         serializer = self.get_serializer(pagination_queryset, many=True)
 
@@ -335,7 +335,6 @@ class HostIPView(GenericViewSet):
         """
         pk = kwargs["pk"]
 
-        queryset = self.get_queryset().filter(project__id=pk). \
-            order_by('-update_time').values("id", "name")
+        queryset = self.get_queryset().filter(project__id=pk).values("id", "name")
 
         return Response(queryset)

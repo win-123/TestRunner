@@ -1,3 +1,5 @@
 # Editor directories and files
 .idea
+.xml
+*.log
 

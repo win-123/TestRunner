@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'e$od9f28jce8q47u3raik$(e%$@lff6r89ux+=f!e1a$e42+#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -112,10 +112,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'autotest',  # 新建数据库名
+            'NAME': 'test_runner',  # 新建数据库名
             'USER': 'root',  # 数据库登录名
-            'PASSWORD': '!2Qwerty',  # 数据库登录密码
-            'HOST': '39.107.76.94',  # 数据库所在服务器ip地址
+            'PASSWORD': '123456',  # 数据库登录密码
+            'HOST': 'localhost',  # 数据库所在服务器ip地址
             'PORT': '3306',  # 监听端口 默认3306即可
         }
     }
@@ -223,73 +223,73 @@ CELERYD_MAX_TASKS_PER_CHILD = 40
 
 # 日志管理
 
-# LOGGING = {
-#
-#     'version': 1,
-#     'disable_existing_loggers': True,
-#     'formatters': {
-#         'standard': {
-#             'format': '%(asctime)s [%(levelname)s] - %(message)s'}
-#         # 日志格式
-#     },
-#     'filters': {
-#     },
-#     'handlers': {
-#         'mail_admins': {
-#             'level': 'ERROR',
-#             'class': 'django.utils.log.AdminEmailHandler',
-#             'include_html': True,
-#         },
-#         'default': {
-#             'level': 'DEBUG',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
-#             'maxBytes': 1024 * 1024 * 50,
-#             'backupCount': 5,
-#             'formatter': 'standard',
-#         },
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'standard'
-#         },
-#         'request_handler': {
-#             'level': 'INFO',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': os.path.join(BASE_DIR, 'logs/run.log'),
-#             'maxBytes': 1024 * 1024 * 50,
-#             'backupCount': 5,
-#             'formatter': 'standard',
-#         },
-#         'scprits_handler': {
-#             'level': 'INFO',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': os.path.join(BASE_DIR, 'logs/run.log'),
-#             'maxBytes': 1024 * 1024 * 100,
-#             'backupCount': 5,
-#             'formatter': 'standard',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['default', 'console'],
-#             'level': 'INFO',
-#             'propagate': True
-#         },
-#         'FasterRunner.app': {
-#             'handlers': ['default', 'console'],
-#             'level': 'INFO',
-#             'propagate': True
-#         },
-#         'django.request': {
-#             'handlers': ['request_handler'],
-#             'level': 'INFO',
-#             'propagate': True
-#         },
-#         'FasterRunner': {
-#             'handlers': ['scprits_handler', 'console'],
-#             'level': 'INFO',
-#             'propagate': True
-#         }
-#     }
-# }
+LOGGING = {
+
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] - %(message)s'}
+        # 日志格式
+    },
+    'filters': {
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+        'default': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'maxBytes': 1024 * 1024 * 50,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+        'request_handler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'run.log'),
+            'maxBytes': 1024 * 1024 * 50,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+        'scprits_handler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'run.log'),
+            'maxBytes': 1024 * 1024 * 100,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['default', 'console'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        'FasterRunner.app': {
+            'handlers': ['default', 'console'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        'django.request': {
+            'handlers': ['request_handler'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        'FasterRunner': {
+            'handlers': ['scprits_handler', 'console'],
+            'level': 'INFO',
+            'propagate': True
+        }
+    }
+}

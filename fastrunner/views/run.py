@@ -103,7 +103,7 @@ def run_api_tree(request):
             test_case.append(parse_host(host, api))
 
     if back_async:
-        tasks.async_debug_api.delay(test_case, project, name, config=parse_host(host, config))
+        task.async_debug_api.delay(test_case, project, name, config=parse_host(host, config))
         summary = loader.TEST_NOT_EXISTS
         summary["msg"] = "接口运行中，请稍后查看报告"
     else:
@@ -231,7 +231,7 @@ def run_suite_tree(request):
             suite_list = suite_list + suite
 
     if back_async:
-        tasks.async_debug_suite.delay(test_sets, project, suite_list, report, config_list)
+        task.async_debug_suite.delay(test_sets, project, suite_list, report, config_list)
         summary = loader.TEST_NOT_EXISTS
         summary["msg"] = "用例运行中，请稍后查看报告"
     else:
@@ -329,7 +329,7 @@ def automation_test(request):
                 "project": plan_sub.project.id,
                 "tag": plan_sub.tag
             }
-            tasks.async_automation_suite.delay(test_sets, tags, suite, request.data, config_list)
+            task.async_automation_suite.delay(test_sets, tags, suite, request.data, config_list)
             break
 
     return Response({

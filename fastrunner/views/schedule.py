@@ -4,6 +4,7 @@
 
 from django.utils.decorators import method_decorator
 from rest_framework.viewsets import GenericViewSet
+from django.core.exceptions import ObjectDoesNotExist
 from djcelery import models
 from rest_framework.response import Response
 from FasterRunner import pagination
@@ -49,30 +50,29 @@ class ScheduleView(GenericViewSet):
         resp = task.add_task()
         return Response(resp)
 
-    # @method_decorator(request_log(level='INFO'))
-    # def update(self, request):
-    #     """
-    #     编辑项目
-    #     """
-    #
-    #     try:
-    #         project = models.Project.objects.get(id=request.data['id'])
-    #     except (KeyError, ObjectDoesNotExist):
-    #         return Response(response.SYSTEM_ERROR)
-    #
-    #     if request.data['name'] != project.name:
-    #         if models.Project.objects.filter(name=request.data['name']).first():
-    #             return Response(response.PROJECT_EXISTS)
-    #
-    #     # 调用save方法update_time字段才会自动更新
-    #     project.name = request.data['name']
-    #     project.desc = request.data['desc']
-    #     project.save()
-    #
-    #     return Response(response.PROJECT_UPDATE_SUCCESS)
-    #
-    # @method_decorator(request_log(level='INFO'))
+    @method_decorator(request_log(level='INFO'))
+    def update(self, request):
+        """
+        编辑项目
+        """
 
+        try:
+            project = models.Project.objects.get(id=request.data['id'])
+        except (KeyError, ObjectDoesNotExist):
+            return Response(response.SYSTEM_ERROR)
+
+        if request.data['name'] != project.name:
+            if models.Project.objects.filter(name=request.data['name']).first():
+                return Response(response.PROJECT_EXISTS)
+
+        # 调用save方法update_time字段才会自动更新
+        project.name = request.data['name']
+        project.desc = request.data['desc']
+        project.save()
+
+        return Response(response.PROJECT_UPDATE_SUCCESS)
+
+    @method_decorator(request_log(level='INFO'))
     def delete(self, request, **kwargs):
         """删除任务
         """
@@ -80,3 +80,9 @@ class ScheduleView(GenericViewSet):
         task.enabled = False
         task.delete()
         return Response(response.TASK_DEL_SUCCESS)
+
+    @method_decorator(request_log(level='INFO'))
+    def create(self, request, **kwargs):
+        """创建
+        """
+        pass

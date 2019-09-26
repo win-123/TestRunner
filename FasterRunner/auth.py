@@ -5,6 +5,7 @@ from rest_framework.authentication import BaseAuthentication
 
 from FasterRunner.settings import INVALID_TIME
 from fastuser import models
+from utils import validation_info
 
 
 class Authenticator(BaseAuthentication):
@@ -18,21 +19,13 @@ class Authenticator(BaseAuthentication):
         obj = models.UserToken.objects.filter(token=token).first()
 
         if not obj:
-            raise exceptions.AuthenticationFailed({
-                "code": "9998",
-                "msg": "用户未认证",
-                "success": False
-            })
+            raise exceptions.AuthenticationFailed(validation_info.VALIDATION_INFO["fail"])
 
         update_time = int(obj.update_time.timestamp())
         current_time = int(time.time())
 
         if current_time - update_time >= INVALID_TIME:
-            raise exceptions.AuthenticationFailed({
-                "code": "9997",
-                "msg": "登陆超时，请重新登陆",
-                "success": False
-            })
+            raise exceptions.AuthenticationFailed(validation_info.VALIDATION_INFO["time_out"])
 
         # valid update valid time
         obj.token = token

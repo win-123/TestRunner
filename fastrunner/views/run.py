@@ -10,16 +10,13 @@ from fastrunner.utils.decorator import request_log
 from fastrunner.utils.host import parse_host
 from fastrunner.utils.parser import Format
 from fastrunner import models
+from utils import validation_info
 
 """运行方式
 """
 logger = logging.getLogger('FasterRunner')
 
-config_err = {
-    "success": False,
-    "msg": "指定的配置文件不存在",
-    "code": "9999"
-}
+config_err = validation_info.VALIDATION_INFO["no_exist"]
 
 
 @api_view(['POST'])
@@ -332,8 +329,4 @@ def automation_test(request):
             task.async_automation_suite.delay(test_sets, tags, suite, request.data, config_list)
             break
 
-    return Response({
-        "success": True,
-        "msg": "集成自动化用例运行中",
-        "code": "0001"
-    })
+    return Response(validation_info.VALIDATION_INFO["run"])
